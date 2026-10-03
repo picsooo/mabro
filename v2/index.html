@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Mabro · De −37 °C à +140 °C</title>
+<link rel="icon" href="../assets/img/emblem.svg">
+<link rel="stylesheet" href="../assets/css/main.css">
+<style>
+:root{--t:0;--cold:0;--heat:0}
+body{background:#0D0F12;color:#F2F3F5}
+.v2-top{position:absolute;top:0;left:0;right:0;z-index:20}
+.v2-top .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.v2-top img{height:46px;width:auto}
+.v2-top nav{display:flex;gap:22px}
+.v2-top nav a{text-decoration:none;font:600 18px/1 var(--cond);color:#fff;opacity:.85}
+.v2-top nav a:hover{opacity:1}
+@media(max-width:600px){.v2-top nav a:not(.go){display:none}}
+.v2-top .go{background:var(--red);padding:12px 16px;opacity:1!important}
+
+/* Scène */
+.stage{position:relative;min-height:max(100svh,760px);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:96px 0 calc(var(--demo) + 26px);isolation:isolate}
+.sky{position:absolute;inset:0;z-index:-3;background:linear-gradient(180deg,var(--sky1),var(--sky2) 60%,var(--ground) 100%);transition:background .25s}
+.frost{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:var(--cold);background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(210,236,255,.55) 100%);mix-blend-mode:screen}
+.haze{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:var(--heat);background:radial-gradient(90% 60% at 50% 100%,rgba(255,120,20,.55),transparent 70%)}
+canvas#fx{position:absolute;inset:0;z-index:-2;width:100%;height:100%}
+.readout{text-align:center;position:relative}
+.readout .lbl{font:600 17px/1.3 var(--body);color:rgba(255,255,255,.75);max-width:none;margin:0 auto 4px}
+.temp{font:800 clamp(92px,22vw,190px)/.82 var(--cond);letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 6px 40px rgba(0,0,0,.35)}
+.temp small{font-size:.32em;vertical-align:top;margin-left:.08em}
+.scene-cap{font:700 20px/1.2 var(--cond);margin-top:12px;min-height:24px;color:#fff}
+
+/* Bidons */
+.shelf{display:flex;justify-content:center;align-items:flex-end;gap:0;margin:44px auto 0;max-width:min(860px,100%);padding:0 10px;position:relative}
+.shelf::after{content:'';position:absolute;left:0;right:0;bottom:-10px;height:10px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)}
+.b{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;margin-left:-2.5%;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s,opacity .35s;text-decoration:none;color:#fff}
+.b:first-child{margin-left:0}
+.b img{width:100%;height:auto;filter:drop-shadow(0 14px 18px rgba(0,0,0,.5))}
+.b .st{position:absolute;top:-30px;font:700 13px/1 var(--cond);padding:6px 8px;background:#fff;color:#111;white-space:nowrap;opacity:0;transform:translateY(6px);transition:.3s}
+.b.on{transform:translateY(-10px)}
+.b.on .st{opacity:1;transform:none}
+.b.off{filter:grayscale(1) brightness(.45);opacity:.7}
+.b.off .st{background:#2a2d31;color:#bbb;opacity:1;transform:none}
+.b:nth-child(1){flex-grow:.8}.b:nth-child(4){flex-grow:1.25}
+@media(max-width:600px){.stage{padding-bottom:calc(var(--demo) + 84px)}.b .st{font-size:10px;padding:4px 5px;top:-22px}}
+
+/* Thermomètre */
+.thermo{max-width:900px;margin:28px auto 0;padding:0 20px;width:100%}
+.thermo input{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:999px;background:linear-gradient(90deg,#7FC8FF,#2C8BD6 18%,#e7eaed 21%,#F5B041 60%,#F07A1A 80%,#E30613);outline:none;cursor:pointer}
+.thermo input::-webkit-slider-thumb{-webkit-appearance:none;width:38px;height:38px;border-radius:50%;background:#fff;border:6px solid var(--red);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.thermo input::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#fff;border:6px solid var(--red)}
+.thermo .lim .z{position:absolute;left:20.9%;transform:translateX(-50%)}
+.thermo .lim{position:relative;display:flex;justify-content:space-between;font:700 15px/1 var(--cond);margin-top:10px;color:rgba(255,255,255,.75)}
+.presets{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.presets button{font:600 15px/1 var(--cond);padding:10px 12px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);cursor:pointer;backdrop-filter:blur(6px)}
+.presets button:hover{background:rgba(255,255,255,.2)}
+.hint{text-align:center;font-size:14px;color:rgba(255,255,255,.65);margin:12px auto 0}
+
+/* Sections sombres */
+.dsec{padding:90px 0}
+.dsec h2{font-size:clamp(40px,7vw,80px);color:#fff}
+.dsec p{color:#AEB4BB}
+.list{margin-top:40px;display:grid;gap:1px;background:#2A2D31;border:1px solid #2A2D31}
+.row{display:grid;grid-template-columns:90px 1fr;gap:18px;align-items:center;padding:18px;background:#14171B;text-decoration:none;color:#fff;transition:background .2s}
+.row:hover{background:#1C2026}
+.row img{height:110px;width:auto;margin:auto}
+.row h3{font-size:28px}
+.row p{margin:4px 0 0;font-size:15px}
+.row .rng{font:800 26px/1 var(--cond);color:var(--c);white-space:nowrap}
+@media(min-width:800px){.row{grid-template-columns:140px 1.2fr 1fr 220px;padding:20px 28px}.row img{height:140px}.row .rng{text-align:right}}
+.big-cta{background:var(--red);color:#fff;padding:90px 0;position:relative;overflow:hidden}
+.big-cta h2{font-size:clamp(44px,8vw,96px);max-width:12ch}
+.big-cta p{color:#FFE1E3;font-size:19px;margin-top:18px}
+.big-cta .ar{font-size:26px;margin-top:8px;color:#fff;text-align:left}
+.big-cta .emb{position:absolute;right:-60px;bottom:-40px;width:min(520px,70vw);opacity:.18}
+.big-cta .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;position:relative}
+.big-cta .btn{background:#fff;color:var(--ink);border-color:#fff}
+.big-cta .btn.o{background:transparent;color:#fff}
+.v2-foot{padding:40px 0 calc(var(--demo) + 40px);font-size:15px;color:#8A9098}
+.v2-foot .wrap{display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center}
+.v2-foot img{height:70px;width:auto}
+.v2-foot a{color:#fff;text-decoration:none;font:700 20px/1 var(--cond)}
+.note-d{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:7px 12px;background:rgba(242,145,0,.12);border:1px solid rgba(242,145,0,.45);color:#F7C77E;font:600 13px/1.3 var(--body)}
+.note-d::before{content:'';width:9px;height:9px;border-radius:50%;background:#F29100;flex:none}
+</style>
+</head>
+<body data-page="v2">
+<header class="v2-top"><div class="wrap">
+  <a href="./" aria-label="Mabro"><img src="../assets/img/logo-blanc.svg" alt="Mabro"></a>
+  <nav><a href="#gamme">La gamme</a><a href="#contact">Contact</a><a class="go" href="#distributeurs">Devenir distributeur</a></nav>
+</div></header>
+
+<main>
+<section class="stage" id="stage" aria-label="Simulateur de température">
+  <div class="sky"></div><canvas id="fx" aria-hidden="true"></canvas><div class="frost"></div><div class="haze"></div>
+  <div class="readout">
+    <p class="lbl">Faites glisser le thermomètre. Les bidons Mabro qui protègent le moteur à cette température s’allument.</p>
+    <div class="temp" aria-live="polite"><span id="tv">−37</span><small>°C</small></div>
+    <div class="scene-cap" id="cap"></div>
+  </div>
+  <div class="shelf" id="shelf"></div>
+  <div class="thermo">
+    <label class="hint" for="t" style="display:block;margin:0 0 12px">Température</label>
+    <input id="t" type="range" min="-37" max="140" step="1" value="-37" aria-describedby="cap">
+    <div class="lim"><span>−37 °C</span><span class="z">0</span><span>+140 °C</span></div>
+    <div class="presets"><button data-v="-30">Nuit de grand froid</button><button data-v="-5">Matin d’hiver</button><button data-v="45">Route du Sud en été</button><button data-v="100">Moteur en marche</button><button data-v="135">Moteur poussé à fond</button></div>
+  </div>
+</section>
+
+<section class="dsec" id="gamme"><div class="wrap">
+  <h2>Six bidons, six plages.</h2>
+  <p class="lead" style="color:#AEB4BB;margin-top:14px">Du Coolant universel au fût de 200 L pour les camions : chaque référence est formulée pour un moteur et un climat.</p>
+  <div class="list" id="list"></div>
+  <p class="note-d">Plages lues sur les étiquettes Mabro, à valider par l’administration de Mabro</p>
+</div></section>
+
+<section class="big-cta" id="distributeurs"><div class="wrap">
+  <img class="emb" src="../assets/img/emblem-blanc.svg" alt="">
+  <h2>Distribuez Mabro dans votre wilaya.</h2>
+  <p class="ar">نجاح موزعينا هو نجاحنا</p>
+  <p>Mabro recherche des distributeurs, en priorité dans le Sud-Est. Les produits sont déjà disponibles dans la région du Hodna.</p>
+  <div class="ctas"><a class="btn" href="../distributeurs.html#demande">Envoyer ma demande</a><a class="btn o" href="https://wa.me/213777569036" target="_blank" rel="noopener">Écrire sur WhatsApp</a></div>
+</div></section>
+</main>
+
+<footer class="v2-foot" id="contact"><div class="wrap">
+  <img src="../assets/img/logo-blanc.svg" alt="Mabro">
+  <a href="tel:+213557861115">0557 86 11 15</a>
+  <a href="https://wa.me/213777569036" target="_blank" rel="noopener">WhatsApp 0777 56 90 36</a>
+  <a href="mailto:marvelbrotherhoode@gmail.com" style="font-size:16px">marvelbrotherhoode@gmail.com</a>
+  <span>Fabriqué en Algérie · Facebook, Instagram et TikTok : Mabro</span>
+</div></footer>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/core.js"></script>
+<script>
+(function(){
+  const P = MABRO.products, root = document.documentElement;
+  const order = ['coolant','typed','g12','truck','g13','psa'];
+  const deg = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
+  const shelf = document.getElementById('shelf');
+  shelf.innerHTML = order.map(id => { const p = P.find(x => x.id === id);
+    return `<a class="b" href="../produit.html?id=${p.id}" data-id="${p.id}"><span class="st"></span><img src="../assets/img/${p.img}" alt="Mabro ${p.name}"></a>`; }).join('');
+  document.getElementById('list').innerHTML = P.map(p => `<a class="row" href="../produit.html?id=${p.id}" style="--c:${p.color}">
+    <img src="../assets/img/${p.img}" alt="" loading="lazy"><div><h3>${p.name}</h3><p>${p.tag}</p></div><p>${p.formats.join(' · ')}</p>
+    <span class="rng">${deg(p.min)} °C${p.max ? ' → ' + deg(p.max) + ' °C' : ''}</span></a>`).join('');
+
+  // Plage haute connue seulement pour G13 et Truck : au-delà de +100 °C, les autres sont « à confirmer »
+  const covers = (p, t) => t >= p.min && (p.max != null ? t <= p.max : t <= 100);
+  const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+  const cold1 = [30, 74, 120], cold2 = [120, 175, 220], mid1 = [32, 40, 52], mid2 = [70, 82, 96], hot1 = [60, 16, 6], hot2 = [230, 110, 30];
+  const input = document.getElementById('t'), tv = document.getElementById('tv'), cap = document.getElementById('cap');
+  function caption(t){
+    if (t <= -20) return 'Grand froid : sans antigel, l’eau du circuit gèle et fend le bloc moteur.';
+    if (t < 0) return 'Gel : un liquide de refroidissement adapté reste liquide.';
+    if (t < 40) return 'Climat doux : tous les bidons Mabro font le travail.';
+    if (t < 90) return 'Forte chaleur : le circuit monte vite en température.';
+    if (t <= 121) return 'Moteur en charge : le liquide doit tenir sans bouillir.';
+    return 'Au-delà de +121 °C, seul le G13 annonce sa protection, jusqu’à +140 °C.';
+  }
+  function set(t){
+    t = +t; tv.textContent = deg(t);
+    const cold = Math.max(0, Math.min(1, -t / 37)), heat = Math.max(0, Math.min(1, (t - 30) / 110));
+    let s1, s2;
+    if (t < 0) { s1 = mix(mid1, cold1, cold); s2 = mix(mid2, cold2, cold); }
+    else { s1 = mix(mid1, hot1, heat); s2 = mix(mid2, hot2, heat); }
+    root.style.setProperty('--sky1', `rgb(${s1})`); root.style.setProperty('--sky2', `rgb(${s2})`);
+    root.style.setProperty('--ground', t < 0 ? `rgb(${mix([20,24,30],[180,205,225],cold)})` : `rgb(${mix([20,24,30],[90,40,14],heat)})`);
+    root.style.setProperty('--cold', cold.toFixed(2)); root.style.setProperty('--heat', heat.toFixed(2));
+    shelf.querySelectorAll('.b').forEach(el => {
+      const p = P.find(x => x.id === el.dataset.id), ok = covers(p, t);
+      el.classList.toggle('on', ok); el.classList.toggle('off', !ok);
+      el.querySelector('.st').textContent = ok ? 'Protégé' : (t > 100 && p.max == null ? 'À confirmer' : 'Hors plage');
+    });
+    cap.textContent = caption(t); fx.t = t;
+  }
+  input.addEventListener('input', () => { auto = false; set(input.value); });
+  document.querySelectorAll('.presets button').forEach(b => b.addEventListener('click', () => { auto = false; glide(+b.dataset.v); }));
+  function glide(to){ const from = +input.value, t0 = performance.now(), d = 700;
+    (function step(n){ const k = Math.min(1, (n - t0) / d), e = 1 - Math.pow(1 - k, 3), v = Math.round(from + (to - from) * e);
+      input.value = v; set(v); if (k < 1) requestAnimationFrame(step); })(t0); }
+
+  // Particules : neige sous 0 °C, braises au-dessus de +60 °C
+  const cv = document.getElementById('fx'), cx = cv.getContext('2d'), fx = { t: -37 };
+  let W, H, parts = [];
+  const rs = () => { W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight; };
+  rs(); addEventListener('resize', rs);
+  for (let i = 0; i < 140; i++) parts.push({ x: Math.random(), y: Math.random(), r: Math.random() * 2.2 + .6, s: Math.random() * .6 + .3, w: Math.random() * 6.28 });
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function draw(){
+    cx.clearRect(0, 0, W, H);
+    const t = fx.t, snow = t < 0 ? Math.min(1, -t / 25) : 0, ember = t > 60 ? Math.min(1, (t - 60) / 60) : 0;
+    parts.forEach((p, i) => {
+      if (snow && i < 140 * snow) {
+        p.y += p.s * .0025; p.x += Math.sin(p.w += .01) * .0006; if (p.y > 1) { p.y = 0; p.x = Math.random(); }
+        cx.fillStyle = 'rgba(255,255,255,.8)'; cx.beginPath(); cx.arc(p.x * W, p.y * H, p.r, 0, 6.28); cx.fill();
+      } else if (ember && i < 90 * ember) {
+        p.y -= p.s * .003; p.x += Math.sin(p.w += .03) * .0008; if (p.y < 0) { p.y = 1; p.x = Math.random(); }
+        cx.fillStyle = `rgba(255,${120 + (i % 80)},40,${.35 + .5 * (1 - p.y)})`; cx.beginPath(); cx.arc(p.x * W, p.y * H, p.r * .9, 0, 6.28); cx.fill();
+      }
+    });
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  // Ouverture : balayage unique de −37 à +25 °C
+  const q = new URLSearchParams(location.search).get('t');
+  let auto = !reduce && q === null;
+  set(-37); draw();
+  if (q !== null) { input.value = q; set(q); }
+  else if (auto) setTimeout(() => { if (auto) glide(25); }, 900); else set(25);
+})();
+</script>
+</body>
+</html>

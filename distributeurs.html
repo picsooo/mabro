@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Devenir distributeur · Mabro</title>
+<link rel="icon" href="assets/img/emblem.svg">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="dist">
+<div data-header></div>
+<main>
+  <section class="page-head"><div class="wrap"><a class="crumb" href="index.html">Accueil</a><h1>Devenir distributeur Mabro</h1><p class="lead">Grossistes, magasins de pièces auto, stations-service et garages : envoyez votre demande, l’équipe commerciale vous rappelle.</p><p class="ar" style="font-size:22px;margin-top:6px">نجاح موزعينا هو نجاحنا</p></div></section>
+  <section class="section"><div class="wrap two">
+    <div>
+      <div class="calc" data-calc>
+        <h3>Estimer votre commande mensuelle</h3>
+        <p>Pour un garage : indiquez vos vidanges de circuit par mois.</p>
+        <label for="vid">Vidanges de circuit par mois <output for="vid"></output></label><input id="vid" type="range" min="5" max="200" step="5" value="40">
+        <label for="cap">Capacité moyenne d’un circuit <output for="cap"></output></label><input id="cap" type="range" min="4" max="12" step="1" value="6">
+        <div class="res"><div><b data-l></b><span>litres par mois</span></div><div><b data-b></b><span>bidons de 5 L</span></div><div><b data-ct></b><span>cartons de 4 × 5 L</span></div></div>
+        <p class="note" style="margin-top:18px">Estimation indicative, hors pertes et appoints</p>
+      </div>
+      <div class="zones" style="margin-top:24px;border:1px solid var(--line)">
+        <h3>Où nous recherchons des distributeurs</h3>
+        <div class="zone">Sud-Est <em class="on">Recherche en cours</em></div>
+        <div class="zone">Région du Hodna <em>Produits disponibles</em></div>
+        <div class="zone">Autres wilayas <em>Sur demande</em></div>
+      </div>
+    </div>
+    <form class="form" id="demande" data-fake>
+      <h2 class="full" style="font-size:40px">Votre demande</h2>
+      <label>Nom et prénom<input required autocomplete="name"></label>
+      <label>Entreprise<input required autocomplete="organization"></label>
+      <label>Téléphone<input required type="tel" autocomplete="tel" placeholder="05 xx xx xx xx"></label>
+      <label>Wilaya<select required data-wilayas><option value="">Choisir</option></select></label>
+      <fieldset class="full"><legend>Votre activité</legend>
+        <label><input type="radio" name="act" required> Grossiste</label><label><input type="radio" name="act"> Pièces auto</label><label><input type="radio" name="act"> Station-service</label><label><input type="radio" name="act"> Garage</label><label><input type="radio" name="act"> Flotte, transport</label></fieldset>
+      <fieldset class="full"><legend>Produits qui vous intéressent</legend>
+        <label><input type="checkbox"> Coolant</label><label><input type="checkbox"> G12</label><label><input type="checkbox"> G13</label><label><input type="checkbox"> Type D</label><label><input type="checkbox"> PSA</label><label><input type="checkbox"> Truck</label></fieldset>
+      <label class="full">Message<textarea rows="4" placeholder="Volumes estimés, zone couverte…"></textarea></label>
+      <div class="full"><button class="btn red" type="submit">Envoyer ma demande</button></div>
+      <p class="form-ok" hidden>Demande envoyée. L’équipe commerciale Mabro vous rappelle rapidement. (Démonstration : rien n’a été enregistré.)</p>
+    </form>
+  </div></section>
+</main>
+<div data-footer></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+</body>
+</html>
