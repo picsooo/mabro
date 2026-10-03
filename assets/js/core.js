@@ -69,15 +69,15 @@
   /* Sélecteur véhicule */
   const fb = document.querySelector('[data-brands]'), fa = document.querySelector('[data-answer]');
   if (fb && fa) {
-    fb.innerHTML = M.vehicles.map(([n, id]) => `<button type="button" data-id="${id}" aria-pressed="false">${n}</button>`).join('');
-    fb.addEventListener('click', e => {
-      const btn = e.target.closest('button'); if (!btn) return;
-      fb.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === btn));
-      const p = byId(btn.dataset.id);
+    fb.innerHTML = `<label class="brand-pick"><span>Marque du véhicule</span><select data-brand-select>${M.vehicles.map(([n, id]) => `<option value="${id}">${n}</option>`).join('')}</select></label>`;
+    const sel = fb.querySelector('select');
+    const show = () => {
+      const opt = sel.options[sel.selectedIndex], p = byId(sel.value);
       fa.innerHTML = `<img src="assets/img/${p.img}" alt="Bidon Mabro ${p.name}"><div><span class="chip c">${deg(p.min)}${p.max ? ' / ' + deg(p.max) : ''}</span>
-        <h3 style="margin-top:12px">${p.name}</h3><p>Pour ${btn.textContent} : ${p.pitch}</p><a class="btn" href="produit.html?id=${p.id}">Voir la fiche produit</a></div>`;
-    });
-    fb.querySelector("button:nth-child(4)").click();
+        <h3 style="margin-top:12px">${p.name}</h3><p>Pour ${opt.textContent} : ${p.pitch}</p><a class="btn" href="produit.html?id=${p.id}">Voir la fiche produit</a></div>`;
+    };
+    sel.addEventListener('change', show);
+    sel.selectedIndex = Math.min(3, sel.options.length - 1); show();
   }
 
   /* Fiche produit */
